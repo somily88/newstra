@@ -1,17 +1,16 @@
-# Start:   docker compose up -d --build        (bot + dashboard at http://localhost:8765)
-# Logs:    docker compose logs -f bot
-# Stop:    docker compose down
-# Backtest: docker compose run --rm backtest     (add options after it, see README)
+# Server version (Hostinger VPS Docker Manager / any Linux server).
+# Settings come from config.yaml baked into the image (edit it in the repo, then redeploy).
+# Secrets come from environment variables set in Hostinger's Docker Manager (never commit .env).
 
 x-common: &common
   build: .
   image: binance-vwap-bot:latest
-  env_file:
-    - path: .env
-      required: false     # paper mode works without a .env file
+  environment:
+    BINANCE_API_KEY: ${BINANCE_API_KEY:-}
+    BINANCE_API_SECRET: ${BINANCE_API_SECRET:-}
+    LIVE_TRADING: ${LIVE_TRADING:-no}
   volumes:
-    - ./config.yaml:/app/config.yaml:ro   # your settings (read-only)
-    - ./data:/app/data                    # state.json, logs, trades.csv, backtest reports
+    - botdata:/app/data
   logging:
     driver: json-file
     options:
@@ -26,38 +25,28 @@ services:
     restart: unless-stopped
     stop_grace_period: 30s
 
-  backtest:
-    <<: *common
-    profiles: ["tools"]   # not started by "docker compose up"; run it with "docker compose run --rm backtest"
-    entrypoint: ["python", "backtest.py"]
-    command: []
-    restart: "no"
-
   dashboard:
     image: binance-vwap-bot:latest
     build: .
     container_name: binance-vwap-dashboard
     command: ["python", "dashboard.py"]
-    # NO env_file here on purpose: the dashboard never gets your API keys.
+    # No API keys here: the dashboard can only read.
     environment:
       DASHBOARD_HOST: 0.0.0.0
-      DASHBOARD_PORT: "8080"                     # port INSIDE the container (don't change)
-      DASHBOARD_PASSWORD: ${DASHBOARD_PASSWORD:-}   # optional, taken from .env if you set it
+      DASHBOARD_PORT: "8080"
+      DASHBOARD_PASSWORD: ${DASHBOARD_PASSWORD:?Set DASHBOARD_PASSWORD in Hostinger environment variables}
     volumes:
-      - ./config.yaml:/app/config.yaml:ro
-      - ./data:/app/data:ro                  # read-only: the dashboard can't change anything
+      - botdata:/app/data:ro
     ports:
-      - "127.0.0.1:${DASHBOARD_PORT:-8765}:8080"   # only this computer can open it (http://localhost:8765)
+      - "${DASHBOARD_PORT:-8765}:8080"   # open from anywhere: http://YOUR-SERVER-IP:8765 (password protected)
     restart: unless-stopped
     depends_on:
       - bot
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/api/health', timeout=5)"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
     logging:
       driver: json-file
       options:
         max-size: "5m"
         max-file: "2"
+
+volumes:
+  botdata:
