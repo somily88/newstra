@@ -1,0 +1,93 @@
+# ===================== Binance VWAP + EMA9 bot settings =====================
+
+# ---- Mode ----
+# paper   = fake money, real live prices. No API keys needed. (DEFAULT, SAFE)
+# testnet = Binance test network with test money (needs TESTNET API keys).
+# live    = REAL MONEY. Also needs LIVE_TRADING=yes in your .env file.
+mode: paper
+
+# ---- Strategy ----
+# trend = (DEFAULT) 1-hour candles. Buy when EMA 9 crosses above VWAP, ONLY if price is
+#         above EMA 200 (up-trend) and the candle closes above both EMA 9 and VWAP.
+#         Sell on the first candle that closes below EMA 9, or at the 1.5% stop loss.
+#         This did best in our 12-month test (see RESEARCH.md) - but it is NOT a money machine.
+# video = exactly the video: 3-minute candles, buy on EMA9-above-VWAP cross, sell on first
+#         close below EMA 9 or 1.5% stop. Lost heavily after fees in our tests.
+strategy: trend
+
+# You can change any setting of a strategy here (leave out what you don't want to change).
+strategies:
+  trend:
+    timeframe: 1h
+    ema_period: 9
+    trend_filter: ema        # none | ema | vwap_slope | both
+    trend_ema: 200
+    confirm: true            # signal candle must close above EMA9 and VWAP
+    exit_mode: ema           # ema | atr | trail
+    stop_loss_pct: 1.5
+    take_profit_pct: 0       # 0 = off
+  video:
+    timeframe: 3m
+    ema_period: 9
+    trend_filter: none
+    confirm: false
+    exit_mode: ema
+    stop_loss_pct: 1.5
+    take_profit_pct: 0
+  # Example of a custom one (choose it with  strategy: my_atr):
+  # my_atr:
+  #   timeframe: 1h
+  #   trend_filter: ema
+  #   exit_mode: atr         # stop = 2.5 x ATR, take profit = 3 x that distance
+  #   atr_stop_mult: 2.5
+  #   atr_tp_r: 3
+  #   cooldown_bars: 0
+
+# ---- Market ----
+market_type: spot          # spot (default) or futures (USDT-M perpetual futures)
+symbols:                   # one or more pairs
+  - BTC/USDT
+
+# ---- VWAP reset time ----
+vwap_anchor: utc           # utc = reset VWAP at 00:00 UTC (crypto day)
+                           # new_york = reset at 09:30 America/New_York (stock session)
+vwap_anchor_custom:        # optional override, e.g. {timezone: "Asia/Riyadh", time: "00:00"}
+  timezone: null
+  time: null
+
+# ---- Trading rules ----
+allow_short: false         # only works with market_type: futures. Off by default.
+trade_usdt: 20             # USDT spent per trade (position size)
+                           # NOTE: Binance minimum order is ~5 USDT on spot, ~50-100 USDT on futures.
+exchange_stop_order: false # true = ALSO place a real stop order on Binance (testnet/live only)
+                           # so you are protected even if the bot/PC turns off.
+futures_leverage: 1        # futures only. Keep 1 unless you really know what you do.
+
+# ---- Paper mode ----
+paper_start_balance_usdt: 1000
+paper_fee_pct: 0.1         # simulated fee per side (%)
+paper_slippage_pct: 0.02   # simulated slippage per fill (%)
+
+# ---- Testnet ----
+# Spot testnet keys: https://testnet.binance.vision
+# Futures testnet ALWAYS uses Binance "Demo Trading" (https://demo.binance.com) keys.
+# Set true to also use Demo Trading for spot instead of testnet.binance.vision.
+use_demo_trading: false
+
+# ---- Bot loop ----
+poll_seconds: 5            # how often to check price for stop loss / take profit
+candles_to_fetch: 1000     # history pulled each candle (enough for VWAP day + EMA 200)
+max_retries: 5             # retries on network errors
+
+# ---- Files ----
+log_file: logs/bot.log
+trade_log_csv: logs/trades.csv
+state_file: state.json
+
+# ---- Backtest defaults (python backtest.py) ----
+backtest:
+  symbol: BTC/USDT
+  days: 60
+  fee_pct: 0.1             # per side
+  slippage_pct: 0.0
+  start_balance_usdt: 1000

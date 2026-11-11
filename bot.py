@@ -141,6 +141,8 @@ class Bot:
         self.candle_info = {}   # latest closed-candle values per symbol (for the dashboard)
         self.last_prices = {}
         self._last_status_write = 0
+        self.exchange_balance = None
+        self._last_bal_fetch = 0
 
     # ---------------- setup
     def _safety_checks(self):
@@ -452,8 +454,22 @@ class Bot:
         except Exception as e:
             log.warning("Could not reconcile balances: %s", e)
 
+    def refresh_exchange_balance(self, force: bool = False):
+        """Read the account balance (testnet/live) for the dashboard, at most once a minute."""
+        if self.mode == "paper" or (not force and time.time() - self._last_bal_fetch < 60):
+            return
+        self._last_bal_fetch = time.time()
+        try:
+            bal = self.ex.fetch_balance()
+            assets = ["USDT"] + sorted({self.ex.market(s)["base"] for s in self.symbols})
+            self.exchange_balance = {a: {"free": float((bal.get(a) or {}).get("free") or 0),
+                                         "total": float((bal.get(a) or {}).get("total") or 0)} for a in assets}
+        except Exception as e:
+            log.warning("Could not read exchange balance: %s", e)
+
     # ---------------- heartbeat for the dashboard (read-only file, no keys inside)
     def write_status(self, phase: str, next_candle_ms: int | None = None):
+        self.refresh_exchange_balance()
         positions = {}
         for s, pos in self.state.positions.items():
             price = self.last_prices.get(s)
@@ -472,6 +488,7 @@ class Bot:
             "allow_short": self.allow_short, "vwap_anchor": f"{self.anchor_tz} {self.anchor_time}",
             "next_candle_close_utc": iso(next_candle_ms) if next_candle_ms else None,
             "paper_balance_usdt": self.state.data["paper_balance"] if self.mode == "paper" else None,
+            "exchange_balance": self.exchange_balance,
             "positions": positions, "latest_candles": self.candle_info, "last_error": ERRORS.last,
             "files": {"trades_csv": self.trades.file, "log_file": path(self.cfg.get("log_file", "logs/bot.log")),
                       "state_file": self.state.file},
