@@ -4,7 +4,7 @@
 # paper   = fake money, real live prices. No API keys needed. (DEFAULT, SAFE)
 # testnet = Binance test network with test money (needs TESTNET API keys).
 # live    = REAL MONEY. Also needs LIVE_TRADING=yes in your .env file.
-mode: testnet
+mode: live
 
 # ---- Strategy ----
 # trend = (DEFAULT) 1-hour candles. Buy when EMA 9 crosses above VWAP, ONLY if price is
@@ -72,7 +72,7 @@ paper_slippage_pct: 0.02   # simulated slippage per fill (%)
 # Spot testnet keys: https://testnet.binance.vision
 # Futures testnet ALWAYS uses Binance "Demo Trading" (https://demo.binance.com) keys.
 # Set true to also use Demo Trading for spot instead of testnet.binance.vision.
-use_demo_trading: true
+use_demo_trading: false
 
 # ---- Bot loop ----
 poll_seconds: 5            # how often to check price for stop loss / take profit
