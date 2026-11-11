@@ -1,52 +1,42 @@
-# Server version (Hostinger VPS Docker Manager / any Linux server).
-# Settings come from config.yaml baked into the image (edit it in the repo, then redeploy).
-# Secrets come from environment variables set in Hostinger's Docker Manager (never commit .env).
-
-x-common: &common
-  build: .
-  image: binance-vwap-bot:latest
-  environment:
-    BINANCE_API_KEY: ${BINANCE_API_KEY:-}
-    BINANCE_API_SECRET: ${BINANCE_API_SECRET:-}
-    LIVE_TRADING: ${LIVE_TRADING:-no}
-  volumes:
-    - botdata:/app/data
-  logging:
-    driver: json-file
-    options:
-      max-size: "10m"
-      max-file: "3"
-
 services:
-  bot:
-    <<: *common
-    container_name: binance-vwap-bot
-    command: ["python", "bot.py"]
-    restart: unless-stopped
-    stop_grace_period: 30s
-
-  dashboard:
-    image: binance-vwap-bot:latest
-    build: .
-    container_name: binance-vwap-dashboard
-    command: ["python", "dashboard.py"]
-    # No API keys here: the dashboard can only read.
-    environment:
-      DASHBOARD_HOST: 0.0.0.0
-      DASHBOARD_PORT: "8080"
-      DASHBOARD_PASSWORD: ${DASHBOARD_PASSWORD:?Set DASHBOARD_PASSWORD in Hostinger environment variables}
-    volumes:
-      - botdata:/app/data:ro
+  trading_bot:
+    container_name: telegram_crypto_bot
+    build: https://github.com/somily88/updeted.git#main
     ports:
-      - "${DASHBOARD_PORT:-8765}:8080"   # open from anywhere: http://YOUR-SERVER-IP:8765 (password protected)
+      - "127.0.0.1:8010:8000"
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+    restart: always
+
+  caddy:
+    image: caddy:2-alpine
+    # Two HTTPS sites: your Telegram bot (sobhitrader.tech) and the VWAP bot dashboard (bot.sobhitrader.tech)
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        cat > /etc/caddy/Caddyfile <<'CADDY'
+        sobhitrader.tech {
+          reverse_proxy trading_bot:8000
+        }
+        bot.sobhitrader.tech {
+          reverse_proxy host.docker.internal:8765
+        }
+        CADDY
+        exec caddy run --config /etc/caddy/Caddyfile --adapter caddyfile
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
     restart: unless-stopped
     depends_on:
-      - bot
-    logging:
-      driver: json-file
-      options:
-        max-size: "5m"
-        max-file: "2"
+      - trading_bot
 
 volumes:
-  botdata:
+  caddy_data:
+  caddy_config:
