@@ -1,42 +1,32 @@
 services:
-  trading_bot:
-    container_name: telegram_crypto_bot
-    build: https://github.com/somily88/updeted.git#main
-    ports:
-      - "127.0.0.1:8010:8000"
-    env_file:
-      - .env
+  bot:
+    build: .
+    image: binance-vwap-bot:latest
+    container_name: binance-vwap-bot
+    command: ["python", "bot.py"]
+    environment:
+      BINANCE_API_KEY: ${BINANCE_API_KEY}
+      BINANCE_API_SECRET: ${BINANCE_API_SECRET}
+      LIVE_TRADING: ${LIVE_TRADING:-no}
     volumes:
-      - ./data:/app/data
-    restart: always
+      - botdata:/app/data
+    restart: unless-stopped
 
-  caddy:
-    image: caddy:2-alpine
-    # Two HTTPS sites: your Telegram bot (sobhitrader.tech) and the VWAP bot dashboard (bot.sobhitrader.tech)
-    entrypoint: ["/bin/sh", "-c"]
-    command:
-      - |
-        cat > /etc/caddy/Caddyfile <<'CADDY'
-        sobhitrader.tech {
-          reverse_proxy trading_bot:8000
-        }
-        bot.sobhitrader.tech {
-          reverse_proxy host.docker.internal:8765
-        }
-        CADDY
-        exec caddy run --config /etc/caddy/Caddyfile --adapter caddyfile
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    ports:
-      - "80:80"
-      - "443:443"
+  dashboard:
+    image: binance-vwap-bot:latest
+    container_name: binance-vwap-dashboard
+    command: ["python", "dashboard.py"]
+    environment:
+      DASHBOARD_HOST: "0.0.0.0"
+      DASHBOARD_PORT: "8080"
+      DASHBOARD_PASSWORD: ${DASHBOARD_PASSWORD}
     volumes:
-      - caddy_data:/data
-      - caddy_config:/config
+      - botdata:/app/data:ro
+    ports:
+      - "8765:8080"
     restart: unless-stopped
     depends_on:
-      - trading_bot
+      - bot
 
 volumes:
-  caddy_data:
-  caddy_config:
+  botdata:
