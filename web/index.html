@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>لوحة بوت VWAP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
+<style>
+  :root{--bg:#0b0f17;--card:#121826;--card2:#182033;--line:#243049;--text:#e6ebf5;--muted:#8a96ad;
+        --green:#22c55e;--red:#ef4444;--amber:#f59e0b;--blue:#3b82f6;--purple:#a855f7;--cyan:#06b6d4;
+        --font:"Tajawal",system-ui,-apple-system,"Segoe UI","Noto Sans Arabic",Tahoma,Arial,sans-serif;
+        --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:15px/1.55 var(--font)}
+  html[lang=en] body{font-size:14px;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  header{position:sticky;top:0;z-index:5;background:rgba(11,15,23,.92);backdrop-filter:blur(8px);
+         border-bottom:1px solid var(--line);padding:12px 18px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  h1{font-size:18px;margin:0;font-weight:800}
+  .badge{padding:4px 12px;border-radius:999px;font-weight:700;font-size:13px;white-space:nowrap}
+  .b-paper{background:rgba(59,130,246,.18);color:#93c5fd;border:1px solid #3b82f6}
+  .b-testnet{background:rgba(245,158,11,.16);color:#fcd34d;border:1px solid #f59e0b}
+  .b-live{background:rgba(239,68,68,.2);color:#fca5a5;border:1px solid #ef4444;animation:pulse 1.6s infinite}
+  @keyframes pulse{50%{box-shadow:0 0 0 6px rgba(239,68,68,.12)}}
+  .dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-inline-end:6px;vertical-align:middle}
+  .spacer{flex:1}
+  .muted{color:var(--muted)} .small{font-size:12.5px}
+  .ltr{direction:ltr;unicode-bidi:isolate}
+  bdi{unicode-bidi:isolate}
+  button,select{background:var(--card2);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font:inherit;font-size:13px;cursor:pointer}
+  button.on{border-color:var(--blue);color:#93c5fd}
+  main{padding:16px;max-width:1400px;margin:0 auto;display:grid;gap:14px;grid-template-columns:repeat(12,minmax(0,1fr))}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;min-width:0}
+  .card h2{font-size:13px;color:var(--muted);margin:0 0 10px;font-weight:700;letter-spacing:0}
+  html[lang=en] .card h2{text-transform:uppercase;letter-spacing:.08em;font-size:12px}
+  .c3{grid-column:span 3}.c6{grid-column:span 6}.c12{grid-column:span 12}
+  @media (max-width:1100px){.c3{grid-column:span 6}.c6{grid-column:span 12}}
+  @media (max-width:640px){.c3{grid-column:span 12} main{padding:10px;gap:10px} header{padding:10px} h1{font-size:16px}}
+  .kv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:5px 12px;align-items:center}
+  .kv>div:nth-child(odd){color:var(--muted)}
+  .kv>div:nth-child(even){text-align:end;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+  .big{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums}
+  .pos{color:var(--green)} .neg{color:var(--red)}
+  .pill{display:inline-block;padding:1px 9px;border-radius:6px;font-size:12.5px;font-weight:700}
+  .p-yes{background:rgba(34,197,94,.15);color:#86efac}.p-no{background:rgba(138,150,173,.12);color:var(--muted)}
+  .chart-wrap{direction:ltr}
+  #chart{height:430px;width:100%}
+  @media (max-width:640px){#chart{height:320px}}
+  .toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;margin-top:8px}
+  .legend i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-inline-end:5px;vertical-align:middle}
+  .tablewrap{overflow:auto;max-height:420px}
+  table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:13px}
+  th,td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:start;white-space:nowrap}
+  th{color:var(--muted);font-weight:700;position:sticky;top:0;background:var(--card)}
+  td.num,th.num{text-align:end}
+  td.num{direction:ltr;unicode-bidi:isolate}
+  pre{margin:0;white-space:pre-wrap;word-break:break-word;font:12px/1.5 var(--mono);color:#cdd6e6;max-height:420px;overflow:auto;direction:ltr;text-align:left}
+  .err{border:1px solid rgba(239,68,68,.5);background:rgba(239,68,68,.08);border-radius:10px;padding:8px 10px;margin-top:10px;font-size:12.5px}
+  .err .msg{direction:ltr;unicode-bidi:isolate;display:block;margin-top:4px;font-family:var(--mono);font-size:11.5px}
+  .empty{color:var(--muted);padding:12px 0}
+  footer{color:var(--muted);font-size:12.5px;text-align:center;padding:10px 16px 24px}
+  .lvl-WARNING{color:#fcd34d}.lvl-ERROR{color:#fca5a5}
+  .poshead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;gap:8px}
+</style>
+</head>
+<body>
+<header>
+  <h1 data-i18n="title"></h1>
+  <span id="modeBadge" class="badge b-paper">…</span>
+  <span id="runState" class="small"><span class="dot" style="background:var(--muted)"></span>…</span>
+  <span class="spacer"></span>
+  <span class="small muted" id="updated"></span>
+  <button id="tzBtn"></button>
+  <button id="langBtn"></button>
+</header>
+
+<main>
+  <section class="card c3"><h2 data-i18n="cardStatus"></h2><div class="kv" id="statusKv"></div><div id="lastErr"></div></section>
+  <section class="card c3"><h2 data-i18n="cardPosition"></h2><div id="positions"></div></section>
+  <section class="card c3"><h2 data-i18n="cardCandle"></h2><div id="candle"></div></section>
+  <section class="card c3"><h2 data-i18n="cardResults"></h2><div class="kv" id="stats"></div></section>
+
+  <section class="card c12">
+    <div class="toolbar">
+      <h2 style="margin:0" data-i18n="cardChart"></h2>
+      <select id="symbolSel" class="ltr"></select>
+      <select id="barsSel"></select>
+      <span class="small muted" id="chartInfo"></span>
+    </div>
+    <div class="chart-wrap"><div id="chart"></div></div>
+    <div class="legend">
+      <span><i style="background:var(--amber)"></i><bdi>EMA 9</bdi></span>
+      <span><i style="background:var(--cyan)"></i><bdi>VWAP</bdi></span>
+      <span><i style="background:var(--purple)"></i><bdi>EMA 200</bdi> <span data-i18n="trendWord"></span></span>
+      <span data-i18n="legendArrows"></span>
+      <span class="muted" data-i18n="legendDots"></span>
+    </div>
+  </section>
+
+  <section class="card c12">
+    <h2 data-i18n="cardTrades"></h2>
+    <div class="tablewrap"><table id="tradesTbl">
+      <thead><tr id="tradesHead"></tr></thead><tbody></tbody></table>
+      <div class="empty" id="noTrades" data-i18n="noTrades"></div>
+    </div>
+  </section>
+
+  <section class="card c6"><h2 data-i18n="cardLogs"></h2><pre id="logs" style="min-height:120px">…</pre></section>
+  <section class="card c6">
+    <div class="toolbar"><h2 style="margin:0" data-i18n="cardBacktest"></h2>
+      <select id="btSel" class="ltr"></select><span class="small muted" id="btInfo"></span></div>
+    <pre id="bt">…</pre>
+  </section>
+</main>
+<footer data-i18n="footer"></footer>
+
+<script>
+const I18N = {
+  ar: {
+    title: "📈 بوت VWAP + EMA9", pageTitle: "لوحة بوت VWAP",
+    mode_paper: "ورقي · أموال وهمية", mode_testnet: "تجريبي · أموال اختبار", mode_live: "حقيقي · أموال حقيقية",
+    modeShort_paper: "ورقي", modeShort_testnet: "تجريبي", modeShort_live: "حقيقي",
+    notRunYet: "لم يعمل البوت بعد", running: "يعمل", stopped: "متوقف", heartbeat: "آخر نبضة",
+    updated: "آخر تحديث", local: "محلي",
+    tzUTC: "الوقت: UTC", tzLocal: "الوقت: محلي", tzTip: "التبديل بين توقيت UTC وتوقيت جهازك",
+    langBtn: "English", langTip: "Switch to English",
+    cardStatus: "حالة البوت", cardPosition: "الصفقة المفتوحة", cardCandle: "آخر شمعة والإشارة", cardResults: "النتائج",
+    cardChart: "الرسم البياني للسعر", cardTrades: "سجل الصفقات", cardLogs: "آخر سطور السجل", cardBacktest: "تقرير الاختبار التاريخي",
+    k_mode: "الوضع", k_strategy: "الاستراتيجية", k_tf: "الإطار الزمني", k_market: "السوق", k_symbols: "العملات",
+    k_perTrade: "مبلغ كل صفقة", k_started: "بدأ التشغيل", k_hb: "آخر نبضة", k_next: "الشمعة القادمة",
+    k_note: "ملاحظة", restartNote: "ملف config.yaml يحدد الآن «{s}» – أعد تشغيل البوت لتطبيقه",
+    market_spot: "فوري (Spot)", market_futures: "عقود آجلة (Futures)",
+    lastErrTitle: "آخر تنبيه",
+    level_WARNING: "تحذير", level_ERROR: "خطأ",
+    noPosition: "لا توجد صفقة مفتوحة – بانتظار إشارة",
+    side_long: "شراء", side_short: "بيع على المكشوف",
+    k_entry: "سعر الدخول", k_last: "آخر سعر", k_stop: "وقف الخسارة", k_tp: "جني الأرباح", off: "غير مفعّل",
+    k_amount: "الكمية", k_upnl: "الربح/الخسارة الحالية", k_opened: "وقت الفتح",
+    waitingBot: "بانتظار البوت…",
+    k_symbol: "العملة", k_candle: "الشمعة", k_close: "الإغلاق",
+    k_aboveTrend: "اتجاه صاعد (فوق EMA {n})", k_emaAbove: "EMA9 فوق VWAP", k_crossUp: "تقاطع صاعد في هذه الشمعة", k_buySig: "إشارة شراء",
+    yes: "نعم", no: "لا", buy: "شراء",
+    k_paperBal: "الرصيد الورقي", k_exBal: "رصيد Binance", k_closed: "الصفقات المغلقة", k_win: "نسبة الصفقات الرابحة", k_totalPnl: "إجمالي الربح/الخسارة",
+    k_fees: "الرسوم المدفوعة", k_bestWorst: "أفضل / أسوأ صفقة", winsLosses: "{w} رابحة / {l} خاسرة",
+    bars: "{n} شمعة", trendWord: "(الاتجاه)",
+    legendArrows: "▲ شراء   ▼ بيع (من سجل صفقاتك)", legendDots: "● نقطة باهتة = إشارة شراء من الاستراتيجية",
+    chartInfo: "شموع {tf} · {src} · آخر إغلاق {px} · {n} علامة صفقات", chartErr: "خطأ في الرسم البياني:",
+    src: "واجهة Binance العامة", mkBuy: "شراء", mkSell: "بيع",
+    th: ["الوقت", "العملة", "العملية", "الاتجاه", "السعر", "الكمية", "القيمة (USDT)", "الرسوم", "الربح/الخسارة (USDT)", "الربح/الخسارة %", "السبب", "الوضع"],
+    numCols: [4, 5, 6, 7, 8, 9],
+    act_OPEN: "فتح", act_CLOSE: "إغلاق",
+    reason_ema9_cross_vwap: "تقاطع EMA9 مع VWAP", reason_close_through_ema: "إغلاق تحت EMA9", reason_close_through_ema9: "إغلاق تحت EMA9",
+    reason_stop_loss: "وقف الخسارة", reason_stop_loss_exchange: "وقف الخسارة (المنصة)", reason_take_profit: "جني الأرباح",
+    noTrades: "لا توجد صفقات بعد. البوت يتداول فقط عند ظهور إشارته.",
+    noLog: "لا يوجد ملف سجل بعد.", noBacktest: "لا يوجد اختبار تاريخي بعد. شغّل: python backtest.py", saved: "حُفظ",
+    dashErr: "خطأ في اللوحة:",
+    ago_s: "قبل {n} ث", ago_m: "قبل {n} د", ago_h: "قبل {n} س",
+    footer: "لوحة للعرض فقط: لا تستطيع فتح أو تعديل أو إلغاء أي أوامر، ولا تحتوي على مفاتيح API. تتحدث كل 12 ثانية. ليست نصيحة مالية.",
+  },
+  en: {
+    title: "📈 VWAP + EMA9 Bot", pageTitle: "VWAP Bot Dashboard",
+    mode_paper: "PAPER · fake money", mode_testnet: "TESTNET · test money", mode_live: "LIVE · REAL MONEY",
+    modeShort_paper: "PAPER", modeShort_testnet: "TESTNET", modeShort_live: "LIVE",
+    notRunYet: "Bot has not run yet", running: "Running", stopped: "Not running", heartbeat: "heartbeat",
+    updated: "Updated", local: "local",
+    tzUTC: "Times: UTC", tzLocal: "Times: Local", tzTip: "Switch between UTC and your computer's local time",
+    langBtn: "العربية", langTip: "التبديل إلى العربية",
+    cardStatus: "Bot status", cardPosition: "Open position", cardCandle: "Latest candle & signal", cardResults: "Results",
+    cardChart: "Price chart", cardTrades: "Trade history", cardLogs: "Latest log lines", cardBacktest: "Backtest report",
+    k_mode: "Mode", k_strategy: "Strategy", k_tf: "Timeframe", k_market: "Market", k_symbols: "Symbols",
+    k_perTrade: "Per trade", k_started: "Started", k_hb: "Last heartbeat", k_next: "Next candle",
+    k_note: "Note", restartNote: "config.yaml now says '{s}' – restart the bot to apply",
+    market_spot: "spot", market_futures: "futures",
+    lastErrTitle: "Last alert", level_WARNING: "WARNING", level_ERROR: "ERROR",
+    noPosition: "No open position – waiting for a signal",
+    side_long: "LONG", side_short: "SHORT",
+    k_entry: "Entry", k_last: "Last price", k_stop: "Stop loss", k_tp: "Take profit", off: "off",
+    k_amount: "Amount", k_upnl: "Unrealized P&L", k_opened: "Opened",
+    waitingBot: "Waiting for the bot…",
+    k_symbol: "Symbol", k_candle: "Candle", k_close: "Close",
+    k_aboveTrend: "Up-trend (above EMA {n})", k_emaAbove: "EMA9 above VWAP", k_crossUp: "Cross up this candle", k_buySig: "BUY signal",
+    yes: "yes", no: "no", buy: "BUY",
+    k_paperBal: "Paper balance", k_exBal: "Binance balance", k_closed: "Closed trades", k_win: "Win rate", k_totalPnl: "Total P&L",
+    k_fees: "Fees paid", k_bestWorst: "Best / worst", winsLosses: "{w}W / {l}L",
+    bars: "{n} candles", trendWord: "(trend)",
+    legendArrows: "▲ buy   ▼ sell (from your trade log)", legendDots: "● faint dot = strategy buy signal",
+    chartInfo: "{tf} candles · {src} · last close {px} · {n} trade marker(s)", chartErr: "Chart error:",
+    src: "Binance public API", mkBuy: "BUY", mkSell: "SELL",
+    th: ["Time", "Symbol", "Action", "Side", "Price", "Amount", "Value (USDT)", "Fee", "P&L (USDT)", "P&L %", "Reason", "Mode"],
+    numCols: [4, 5, 6, 7, 8, 9],
+    act_OPEN: "OPEN", act_CLOSE: "CLOSE",
+    noTrades: "No trades yet. The bot only trades when its signal appears.",
+    noLog: "No log file yet.", noBacktest: "No backtest yet. Run: python backtest.py", saved: "saved",
+    dashErr: "Dashboard error:",
+    ago_s: "{n}s ago", ago_m: "{n} min ago", ago_h: "{n} h ago",
+    footer: "Read-only dashboard: it cannot place, change or cancel orders and has no API keys. Refreshes every 12 s. Not financial advice.",
+  },
+};
+let lang = new URLSearchParams(location.search).get("lang") || localStorage.getItem("lang") || "ar";
+if (!["ar", "en"].includes(lang)) lang = "ar";
+function t(key, vars = {}) { let s = I18N[lang][key]; if (s === undefined) s = I18N.en[key]; if (s === undefined) return key;
+  if (typeof s === "string") for (const [k, v] of Object.entries(vars)) s = s.replace("{" + k + "}", v); return s; }
+function tr(prefix, val) { const k = prefix + val; return (I18N[lang][k] ?? (lang === "en" ? val : I18N.ar[k])) ?? val; }
+
+const $ = id => document.getElementById(id);
+let useLocal = localStorage.getItem("tz") === "local";
+let bars = new URLSearchParams(location.search).get("bars") || localStorage.getItem("bars") || "300";
+let chart, candleSeries, emaS, vwapS, trendS, curSymbol = null, lastFitSymbol = null;
+const fmt = (x, d = 2) => (x === null || x === undefined || isNaN(x)) ? "—" :
+  Number(x).toLocaleString("en-US", {minimumFractionDigits: d, maximumFractionDigits: d});
+const pnlCls = x => x > 0 ? "pos" : (x < 0 ? "neg" : "");
+function el(tag, attrs = {}, text) { const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v); if (text !== undefined) e.textContent = text; return e; }
+const num = (text, cls = "") => el("span", {class: "ltr " + cls}, text);   // numbers / times / symbols stay LTR
+
+function parseUtc(s) { if (!s) return null; const d = new Date(s.replace(" UTC", "Z").replace(" ", "T")); return isNaN(d) ? null : d; }
+function showTime(s) { const d = parseUtc(s); if (!d) return s || "—";
+  if (!useLocal) return d.toISOString().slice(0, 16).replace("T", " ") + " UTC";
+  const p = n => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`; }
+function ago(sec) { if (sec == null) return "—"; sec = Math.max(0, Math.round(sec));
+  if (sec < 60) return t("ago_s", {n: sec}); if (sec < 3600) return t("ago_m", {n: Math.round(sec / 60)}); return t("ago_h", {n: (sec / 3600).toFixed(1)}); }
+function kv(container, pairs) { container.replaceChildren(); for (const [k, v, cls] of pairs) {
+  container.append(el("div", {}, k)); const d = el("div", cls ? {class: cls} : {});
+  d.append(v instanceof Node ? v : num(String(v))); container.append(d); } }
+const txt = s => el("span", {}, s);   // plain (translated) text value, natural direction
+function pill(yes, textYes, textNo) { return el("span", {class: "pill " + (yes ? "p-yes" : "p-no")}, yes ? textYes : textNo); }
+async function getJSON(url) { const r = await fetch(url); if (!r.ok) throw new Error(r.status + " " + (await r.text()).slice(0, 200)); return r.json(); }
+
+function applyLang() {
+  document.documentElement.lang = lang; document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+  document.title = t("pageTitle");
+  document.querySelectorAll("[data-i18n]").forEach(e => e.textContent = t(e.dataset.i18n));
+  $("langBtn").textContent = t("langBtn"); $("langBtn").title = t("langTip");
+  $("tzBtn").title = t("tzTip");
+  const head = $("tradesHead"); head.replaceChildren(...I18N[lang].th.map((h, i) => el("th", I18N[lang].numCols.includes(i) ? {class: "num"} : {}, h)));
+  $("barsSel").replaceChildren(...["150", "300", "600", "1000"].map(n => el("option", {value: n}, t("bars", {n}))));
+  $("barsSel").value = bars;
+  applyTz();
+}
+$("langBtn").onclick = () => { lang = lang === "ar" ? "en" : "ar"; localStorage.setItem("lang", lang); applyLang(); refresh(); };
+$("tzBtn").onclick = () => { useLocal = !useLocal; localStorage.setItem("tz", useLocal ? "local" : "utc"); applyTz(); refresh(); };
+function applyTz() { $("tzBtn").textContent = useLocal ? t("tzLocal") : t("tzUTC"); $("tzBtn").classList.toggle("on", useLocal);
+  if (chart) chart.applyOptions({localization: {timeFormatter: chartTime}, timeScale: {tickMarkFormatter: tick}}); }
+function chartTime(x) { const d = new Date(x * 1000);
+  if (!useLocal) return d.toISOString().slice(0, 16).replace("T", " ") + " UTC";
+  return d.toLocaleString("en-GB", {month: "short", day: "2-digit", hour: "2-digit", minute: "2-digit"}); }
+function tick(x, type) { const d = new Date(x * 1000), dayOnly = type !== undefined && type < 3;
+  const o = useLocal ? {} : {timeZone: "UTC"};
+  return dayOnly ? d.toLocaleDateString("en-US", {month: "short", day: "numeric", ...o})
+                 : d.toLocaleTimeString("en-GB", {hour: "2-digit", minute: "2-digit", ...o}); }
+
+function initChart() {
+  chart = LightweightCharts.createChart($("chart"), {
+    layout: {background: {type: "solid", color: "#121826"}, textColor: "#8a96ad"},
+    grid: {vertLines: {color: "#1b2438"}, horzLines: {color: "#1b2438"}},
+    rightPriceScale: {borderColor: "#243049"}, timeScale: {borderColor: "#243049", timeVisible: true, tickMarkFormatter: tick},
+    crosshair: {mode: 0}, localization: {timeFormatter: chartTime, locale: "en-US"}, autoSize: true,
+  });
+  candleSeries = chart.addCandlestickSeries({upColor: "#22c55e", downColor: "#ef4444", borderVisible: false, wickUpColor: "#22c55e", wickDownColor: "#ef4444"});
+  emaS = chart.addLineSeries({color: "#f59e0b", lineWidth: 2, priceLineVisible: false, lastValueVisible: false});
+  vwapS = chart.addLineSeries({color: "#06b6d4", lineWidth: 2, priceLineVisible: false, lastValueVisible: false});
+  trendS = chart.addLineSeries({color: "#a855f7", lineWidth: 2, lineStyle: 2, priceLineVisible: false, lastValueVisible: false});
+}
+
+async function loadStatus() {
+  const s = await getJSON("/api/status");
+  const mode = (s.mode || s.configured.mode || "paper").toLowerCase();
+  const b = $("modeBadge"); b.className = "badge b-" + mode; b.textContent = t("mode_" + mode);
+  const rs = $("runState"); rs.replaceChildren();
+  const color = !s.has_status ? "var(--muted)" : (s.running ? "var(--green)" : "var(--red)");
+  rs.append(el("span", {class: "dot", style: "background:" + color}),
+    txt(!s.has_status ? t("notRunYet") : (s.running ? t("running") : t("stopped")) + " · " + t("heartbeat") + " " + ago(s.heartbeat_age_s)));
+  const cfg = s.configured, syms = s.symbols || cfg.symbols, mk = s.market_type || cfg.market_type;
+  kv($("statusKv"), [
+    [t("k_mode"), txt(t("modeShort_" + mode))], [t("k_strategy"), num(s.strategy || cfg.strategy)],
+    [t("k_tf"), num(s.timeframe || cfg.timeframe)], [t("k_market"), txt(tr("market_", mk))],
+    [t("k_symbols"), num(syms.join(", "))], [t("k_perTrade"), num(fmt(s.trade_usdt ?? cfg.trade_usdt) + " USDT")],
+    [t("k_started"), s.started_utc ? showTime(s.started_utc) : "—"], [t("k_hb"), s.heartbeat_utc ? showTime(s.heartbeat_utc) : "—"],
+    [t("k_next"), s.next_candle_close_utc ? showTime(s.next_candle_close_utc) : "—"],
+  ]);
+  if (s.has_status && s.strategy && cfg.strategy !== s.strategy)
+    $("statusKv").append(el("div", {}, t("k_note")), el("div", {class: "small"}, t("restartNote", {s: cfg.strategy})));
+  const le = $("lastErr"); le.replaceChildren();
+  if (s.last_error) { const box = el("div", {class: "err"});
+    box.append(el("b", {class: "lvl-" + s.last_error.level}, tr("level_", s.last_error.level) + " "), num(showTime(s.last_error.time_utc)),
+               el("span", {class: "msg"}, s.last_error.message)); le.append(box); }
+
+  const pc = $("positions"); pc.replaceChildren();
+  const pos = Object.entries(s.positions || {});
+  if (!pos.length) pc.append(el("div", {class: "empty"}, t("noPosition")));
+  for (const [sym, p] of pos) {
+    const head = el("div", {class: "poshead"}), title = el("b");
+    title.append(num(sym), txt(" · " + tr("side_", p.side)));
+    const pct = p.unrealized_pnl_pct == null ? "—" : (p.unrealized_pnl_pct >= 0 ? "+" : "") + fmt(p.unrealized_pnl_pct) + "%";
+    head.append(title, num(pct, "big " + pnlCls(p.unrealized_pnl_usdt)));
+    const k = el("div", {class: "kv"});
+    kv(k, [[t("k_entry"), fmt(p.entry)], [t("k_last"), fmt(p.last_price)], [t("k_stop"), fmt(p.stop)],
+      [t("k_tp"), p.tp ? fmt(p.tp) : txt(t("off"))], [t("k_amount"), String(p.amount)],
+      [t("k_upnl"), num(fmt(p.unrealized_pnl_usdt, 4) + " USDT", pnlCls(p.unrealized_pnl_usdt))], [t("k_opened"), showTime(p.opened)]]);
+    const wrap = el("div", {style: "margin-bottom:10px"}); wrap.append(head, k); pc.append(wrap);
+  }
+  const cc = $("candle"); cc.replaceChildren();
+  const lc = Object.entries(s.latest_candles || {});
+  if (!lc.length) cc.append(el("div", {class: "empty"}, t("waitingBot")));
+  for (const [sym, c] of lc) {
+    const k = el("div", {class: "kv", style: "margin-bottom:10px"}), p = s.strategy_params || {};
+    kv(k, [[t("k_symbol"), sym], [t("k_candle"), showTime(c.candle_open_utc)], [t("k_close"), fmt(c.close)],
+      ["EMA " + (p.ema_period || 9), fmt(c.ema)], ["VWAP", fmt(c.vwap)], ["EMA " + (p.trend_ema || 200), fmt(c.ema_trend)],
+      [t("k_aboveTrend", {n: p.trend_ema || 200}), pill(c.above_trend, t("yes"), t("no"))],
+      [t("k_emaAbove"), pill(c.ema > c.vwap, t("yes"), t("no"))],
+      [t("k_crossUp"), pill(c.cross_up, t("yes"), t("no"))],
+      [t("k_buySig"), pill(c.long_signal, t("buy"), t("no"))]]);
+    cc.append(k);
+  }
+  const sel = $("symbolSel");
+  if (sel.options.length !== syms.length) sel.replaceChildren(...syms.map(x => el("option", {value: x}, x)));
+  if (!curSymbol) curSymbol = syms[0];
+  return s;
+}
+
+async function loadTrades(status) {
+  const d = await getJSON("/api/trades"), st = d.stats;
+  const pairs = [[t("k_closed"), String(st.total_trades)],
+    [t("k_win"), st.win_rate_pct == null ? "—" : (() => { const w = el("span"); w.append(num(fmt(st.win_rate_pct, 1) + "%"),
+       el("span", {class: "small muted"}, " (" + t("winsLosses", {w: st.wins, l: st.losses}) + ")")); return w; })()],
+    [t("k_totalPnl"), num(fmt(st.total_pnl_usdt, 4) + " USDT", pnlCls(st.total_pnl_usdt))],
+    [t("k_fees"), fmt(st.total_fees_usdt, 4) + " USDT"],
+    [t("k_bestWorst"), st.best_usdt == null ? "—" : fmt(st.best_usdt, 4) + " / " + fmt(st.worst_usdt, 4)]];
+  if (status && status.paper_balance_usdt != null) pairs.unshift([t("k_paperBal"), fmt(status.paper_balance_usdt) + " USDT"]);
+  if (status && status.exchange_balance) {
+    const eb = Object.entries(status.exchange_balance).reverse();
+    for (const [a, v] of eb) pairs.unshift([t("k_exBal") + " · " + a, num(fmt(v.total, a === "USDT" ? 2 : 6) + " " + a)]);
+  }
+  kv($("stats"), pairs);
+  const tb = $("tradesTbl").querySelector("tbody"); tb.replaceChildren();
+  $("noTrades").style.display = d.trades.length ? "none" : "block";
+  for (const r of d.trades) {
+    const row = el("tr"), pnl = parseFloat(r.pnl_usdt);
+    const cells = [[showTime(r.time_utc), "num"], [r.symbol, "num"], [tr("act_", r.action), r.action === "OPEN" ? "pos" : ""],
+      [tr("side_", r.side), ""], [fmt(parseFloat(r.price)), "num"], [r.amount, "num"], [fmt(parseFloat(r.notional_usdt)), "num"],
+      [fmt(parseFloat(r.fee_usdt), 4), "num"], [r.pnl_usdt === "" ? "" : fmt(pnl, 4), "num " + pnlCls(pnl)],
+      [r.pnl_pct === "" ? "" : fmt(parseFloat(r.pnl_pct)) + "%", "num " + pnlCls(pnl)], [tr("reason_", r.reason), ""],
+      [tr("modeShort_", r.mode), ""]];
+    cells[0][1] = ""; // time: keep in natural column alignment, but isolate LTR
+    cells.forEach(([v, c], i) => { const td = el("td", c ? {class: c} : {}); if (i <= 1) td.append(num(v ?? "")); else td.textContent = v ?? ""; row.append(td); });
+    tb.append(row);
+  }
+}
+
+async function loadChart() {
+  if (!curSymbol) return;
+  try {
+    const d = await getJSON("/api/candles?symbol=" + encodeURIComponent(curSymbol) + "&limit=" + bars);
+    candleSeries.setData(d.bars.map(b => ({time: b.time, open: b.open, high: b.high, low: b.low, close: b.close})));
+    emaS.setData(d.bars.map(b => ({time: b.time, value: b.ema})));
+    vwapS.setData(d.bars.map(b => ({time: b.time, value: b.vwap})));
+    trendS.setData(d.bars.map(b => ({time: b.time, value: b.ema_trend})));
+    const marks = d.markers.map(m => ({time: m.time, position: m.buy ? "belowBar" : "aboveBar",
+      color: m.buy ? "#22c55e" : "#ef4444", shape: m.buy ? "arrowUp" : "arrowDown",
+      text: (m.buy ? "BUY" : "SELL") + (m.pnl_usdt != null ? " " + (m.pnl_usdt >= 0 ? "+" : "") + m.pnl_usdt.toFixed(3) : "")}));
+    for (const b of d.bars) if (b.long_signal) marks.push({time: b.time, position: "belowBar", color: "rgba(34,197,94,.45)", shape: "circle", size: 0.5});
+    marks.sort((a, b) => a.time - b.time);
+    candleSeries.setMarkers(marks);
+    if (lastFitSymbol !== curSymbol) { chart.timeScale().fitContent(); lastFitSymbol = curSymbol; }
+    const last = d.bars[d.bars.length - 1];
+    const info = $("chartInfo"); info.replaceChildren(txt(t("chartInfo", {tf: d.timeframe, src: t("src") + " (" + d.source.replace(/.*\((.*)\).*/, "$1") + ")", px: fmt(last.close), n: d.markers.length})));
+  } catch (e) { $("chartInfo").replaceChildren(txt(t("chartErr") + " "), num(e.message)); }
+}
+$("symbolSel").onchange = e => { curSymbol = e.target.value; loadChart(); };
+$("barsSel").onchange = e => { bars = e.target.value; localStorage.setItem("bars", bars); lastFitSymbol = null; loadChart(); };
+
+async function loadLogs() {
+  const l = await getJSON("/api/logs?n=120"), pre = $("logs"); pre.replaceChildren();
+  if (!l.lines.length) { pre.textContent = t("noLog"); return; }
+  for (const line of l.lines) { const m = line.match(/ (WARNING|ERROR) /); pre.append(el("span", m ? {class: "lvl-" + m[1]} : {}, line + "\n")); }
+  pre.scrollTop = pre.scrollHeight;
+}
+async function loadBacktest() {
+  const sel = $("btSel"), b = await getJSON("/api/backtest" + (sel.value ? "?name=" + encodeURIComponent(sel.value) : ""));
+  if (!b.reports.length) { $("bt").textContent = t("noBacktest"); sel.style.display = "none"; return; }
+  if (sel.options.length !== b.reports.length) { const keep = sel.value;
+    sel.replaceChildren(...b.reports.map(x => el("option", {value: x}, x.replace("backtest_report_", "").replace(".txt", ""))));
+    sel.value = keep || b.name; }
+  $("btInfo").replaceChildren(txt(t("saved") + " "), num(b.modified_utc)); $("bt").textContent = b.text;
+}
+$("btSel").onchange = loadBacktest;
+
+async function refresh() {
+  let status = null;
+  try { status = await loadStatus(); } catch (e) { $("runState").replaceChildren(txt(t("dashErr") + " "), num(e.message)); }
+  await Promise.allSettled([loadTrades(status), loadChart(), loadLogs(), loadBacktest()]);
+  const now = new Date(), p = n => String(n).padStart(2, "0");
+  const tm = useLocal ? `${p(now.getHours())}:${p(now.getMinutes())}:${p(now.getSeconds())}` : now.toISOString().slice(11, 19) + " UTC";
+  $("updated").replaceChildren(txt(t("updated") + " "), num(tm));
+}
+initChart(); applyLang(); refresh(); setInterval(refresh, 12000);
+</script>
+</body>
+</html>

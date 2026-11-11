@@ -1,0 +1,85 @@
+2026-11-11 20:34:14 INFO    ======================================================================
+2026-11-11 20:34:14 INFO    Mode: PAPER (fake money, real prices) | market: spot | symbols: ['BTC/USDT'] | tf: 1h
+2026-11-11 20:34:14 INFO    Strategy 'trend': EMA9 x VWAP (anchor UTC 00:00) | trend filter ema (EMA200) | confirm True
+2026-11-11 20:34:14 INFO    Exit: close through EMA9 / stop 1.5% / TP off | 20.00 USDT/trade | shorts False
+2026-11-11 20:34:14 INFO    Paper balance: 1000.00 USDT
+2026-11-11 20:34:14 INFO    ======================================================================
+2026-11-11 20:34:14 INFO    BTC/USDT candle 2026-11-11 19:00:00 UTC close=74394.99 EMA9=74184.96 VWAP=73917.23 EMA200=75740.61  cross_up=False  buy_signal=False  position=none
+2026-11-11 20:34:14 INFO    Waiting for next candle close at 2026-11-11 21:00:00 UTC ...
+2026-11-11 20:35:40 INFO    Stop signal received. Saving state and exiting.
+2026-11-11 20:35:40 INFO    State saved to /app/data/state.json (open positions: none)
+2026-11-11 20:48:21 INFO    Loaded state from /app/data/state.json (open positions: none)
+2026-11-11 20:48:21 INFO    ======================================================================
+2026-11-11 20:48:21 INFO    Mode: PAPER (fake money, real prices) | market: spot | symbols: ['BTC/USDT'] | tf: 1h
+2026-11-11 20:48:21 INFO    Strategy 'trend': EMA9 x VWAP (anchor UTC 00:00) | trend filter ema (EMA200) | confirm True
+2026-11-11 20:48:21 INFO    Exit: close through EMA9 / stop 1.5% / TP off | 20.00 USDT/trade | shorts False
+2026-11-11 20:48:21 INFO    Paper balance: 1000.00 USDT
+2026-11-11 20:48:21 INFO    ======================================================================
+2026-11-11 20:48:21 INFO    Waiting for next candle close at 2026-11-11 21:00:00 UTC ...
+2026-11-11 20:51:53 INFO    Stop signal received. Saving state and exiting.
+2026-11-11 20:51:53 INFO    State saved to /app/data/state.json (open positions: none)
+2026-11-11 20:52:26 INFO    Loaded state from /app/data/state.json (open positions: none)
+2026-11-11 20:52:26 INFO    ======================================================================
+2026-11-11 20:52:26 INFO    Mode: PAPER (fake money, real prices) | market: spot | symbols: ['BTC/USDT'] | tf: 1h
+2026-11-11 20:52:26 INFO    Strategy 'trend': EMA9 x VWAP (anchor UTC 00:00) | trend filter ema (EMA200) | confirm True
+2026-11-11 20:52:26 INFO    Exit: close through EMA9 / stop 1.5% / TP off | 20.00 USDT/trade | shorts False
+2026-11-11 20:52:26 INFO    Paper balance: 1000.00 USDT
+2026-11-11 20:52:26 INFO    ======================================================================
+2026-11-11 20:52:27 INFO    Waiting for next candle close at 2026-11-11 21:00:00 UTC ...
+2026-11-11 20:57:12 INFO    Stop signal received. Saving state and exiting.
+2026-11-11 20:57:12 INFO    State saved to /app/data/state.json (open positions: none)
+2026-11-11 20:57:19 INFO    Loaded state from /app/data/state.json (open positions: none)
+2026-11-11 20:57:19 INFO    ======================================================================
+2026-11-11 20:57:19 INFO    Mode: PAPER (fake money, real prices) | market: spot | symbols: ['BTC/USDT'] | tf: 1h
+2026-11-11 20:57:19 INFO    Strategy 'trend': EMA9 x VWAP (anchor UTC 00:00) | trend filter ema (EMA200) | confirm True
+2026-11-11 20:57:19 INFO    Exit: close through EMA9 / stop 1.5% / TP off | 20.00 USDT/trade | shorts False
+2026-11-11 20:57:19 INFO    Paper balance: 1000.00 USDT
+2026-11-11 20:57:19 INFO    ======================================================================
+2026-11-11 20:57:20 INFO    Waiting for next candle close at 2026-11-11 21:00:00 UTC ...
+2026-11-11 21:00:13 WARNING Network problem (RequestTimeout: binance GET https://api.binance.com/api/v3/klines?interval=1h&limit=1000&symbol=BTCUSDT). Retry 1/5 in 2s
+2026-11-11 21:00:16 INFO    BTC/USDT candle 2026-11-11 20:00:00 UTC close=74678.99 EMA9=74283.76 VWAP=73960.32 EMA200=75730.04  cross_up=False  buy_signal=False  position=none
+2026-11-11 21:00:16 INFO    Waiting for next candle close at 2026-11-11 22:00:00 UTC ...
+2026-11-11 21:03:56 INFO    Stop signal received. Saving state and exiting.
+2026-11-11 21:03:56 INFO    State saved to /app/data/state.json (open positions: none)
+2026-11-11 21:04:04 INFO    Loaded state from /app/data/state.json (open positions: none)
+2026-11-11 21:04:04 INFO    ======================================================================
+2026-11-11 21:04:04 INFO    Mode: PAPER (fake money, real prices) | market: spot | symbols: ['BTC/USDT'] | tf: 1h
+2026-11-11 21:04:04 INFO    Strategy 'trend': EMA9 x VWAP (anchor UTC 00:00) | trend filter ema (EMA200) | confirm True
+2026-11-11 21:04:04 INFO    Exit: close through EMA9 / stop 1.5% / TP off | 20.00 USDT/trade | shorts False
+2026-11-11 21:04:04 INFO    Paper balance: 1000.00 USDT
+2026-11-11 21:04:04 INFO    ======================================================================
+2026-11-11 21:04:05 INFO    Waiting for next candle close at 2026-11-11 22:00:00 UTC ...
+2026-11-11 21:12:24 INFO    Stop signal received. Saving state and exiting.
+2026-11-11 21:12:24 INFO    State saved to /app/data/state.json (open positions: none)
+2026-11-11 21:12:32 INFO    Loaded state from /app/data/state.json (open positions: none)
+2026-11-11 21:12:32 INFO    ======================================================================
+2026-11-11 21:12:32 INFO    Mode: PAPER (fake money, real prices) | market: spot | symbols: ['BTC/USDT'] | tf: 1h
+2026-11-11 21:12:32 INFO    Strategy 'trend': EMA9 x VWAP (anchor UTC 00:00) | trend filter ema (EMA200) | confirm True
+2026-11-11 21:12:32 INFO    Exit: close through EMA9 / stop 1.5% / TP off | 20.00 USDT/trade | shorts False
+2026-11-11 21:12:32 INFO    Paper balance: 1000.00 USDT
+2026-11-11 21:12:32 INFO    ======================================================================
+2026-11-11 21:12:32 INFO    Waiting for next candle close at 2026-11-11 22:00:00 UTC ...
+2026-11-11 21:19:18 INFO    Stop signal received. Saving state and exiting.
+2026-11-11 21:19:18 INFO    State saved to /app/data/state.json (open positions: none)
+2026-11-11 21:19:26 INFO    ======================================================================
+2026-11-11 21:19:26 INFO    Mode: TESTNET (test money) | market: spot | symbols: ['BTC/USDT'] | tf: 1h
+2026-11-11 21:19:26 INFO    Strategy 'trend': EMA9 x VWAP (anchor UTC 00:00) | trend filter ema (EMA200) | confirm True
+2026-11-11 21:19:26 INFO    Exit: close through EMA9 / stop 1.5% / TP off | 20.00 USDT/trade | shorts False
+2026-11-11 21:19:26 INFO    ======================================================================
+2026-11-11 21:19:27 INFO    BTC/USDT candle 2026-11-11 20:00:00 UTC close=74641.93 EMA9=74277.00 VWAP=73963.43 EMA200=75729.78  cross_up=False  buy_signal=False  position=none
+2026-11-11 21:19:27 INFO    Waiting for next candle close at 2026-11-11 22:00:00 UTC ...
+2026-11-11 21:23:14 INFO    Stop signal received. Saving state and exiting.
+2026-11-11 21:23:14 INFO    State saved to /app/data/state_testnet.json (open positions: none)
+2026-11-11 21:23:24 INFO    Loaded state from /app/data/state_testnet.json (open positions: none)
+2026-11-11 21:23:24 INFO    ======================================================================
+2026-11-11 21:23:24 INFO    Mode: TESTNET (test money) | market: spot | symbols: ['BTC/USDT'] | tf: 1h
+2026-11-11 21:23:24 INFO    Strategy 'trend': EMA9 x VWAP (anchor UTC 00:00) | trend filter ema (EMA200) | confirm True
+2026-11-11 21:23:24 INFO    Exit: close through EMA9 / stop 1.5% / TP off | 20.00 USDT/trade | shorts False
+2026-11-11 21:23:24 INFO    ======================================================================
+2026-11-11 21:23:25 INFO    Waiting for next candle close at 2026-11-11 22:00:00 UTC ...
+2026-11-11 21:57:52 WARNING Could not read exchange balance: binance GET https://demo-api.binance.com/api/v3/account?timestamp=1794434261621&recvWindow=10000&signature=a6aad3970a848ebfd9bcedf5584c4f5a4d46d92d39c18405f94ac80e09ef6753
+2026-11-11 22:00:12 WARNING Network problem (RequestTimeout: binance GET https://demo-api.binance.com/api/v3/klines?interval=1h&limit=1000&symbol=BTCUSDT). Retry 1/5 in 2s
+2026-11-11 22:00:23 INFO    BTC/USDT candle 2026-11-11 21:00:00 UTC close=74390.01 EMA9=74299.60 VWAP=73976.96 EMA200=75716.41  cross_up=False  buy_signal=False  position=none
+2026-11-11 22:00:23 INFO    Waiting for next candle close at 2026-11-11 23:00:00 UTC ...
+2026-11-11 22:28:57 INFO    Stop signal received. Saving state and exiting.
+2026-11-11 22:28:57 INFO    State saved to /app/data/state_testnet.json (open positions: none)

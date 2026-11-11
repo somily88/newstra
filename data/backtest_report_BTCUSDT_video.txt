@@ -1,0 +1,64 @@
+================================================================
+ BACKTEST FULL PERIOD: BTC/USDT 3m  strategy 'video'
+================================================================
+ Data source      : binance (api.binance.com)
+ Rules            : EMA9 x VWAP (anchor UTC 00:00), trend filter none, confirm False
+ Exit             : first close through EMA9, stop 1.5%, TP off
+ Fees / slippage  : 0.1% per side / 0.0% per fill
+ Shorts           : off
+ Period (UTC)     : 2025-11-11 00:00 -> 2026-11-10 23:57  (175200 candles)
+----------------------------------------------------------------
+ Trades           : 1512
+ Win rate         : 11.51%  (174 wins / 1338 losses)
+ Avg win / loss   : +0.323% / -0.271%
+ Profit factor    : 0.155
+ Exit reasons     : {'close_through_ema': 1512}
+ Avg trade length : 6.9 candles
+ Total return     : -95.35%  (compounding full balance 1000 -> 46.54 USDT)
+ Fixed 20 USDT/trade: -61.18 USDT total PnL
+ Max drawdown     : -95.36%
+ Buy & hold       : -30.39%
+================================================================
+================================================================
+ BACKTEST IN-SAMPLE (before split): BTC/USDT 3m  strategy 'video'
+================================================================
+ Data source      : binance (api.binance.com)
+ Rules            : EMA9 x VWAP (anchor UTC 00:00), trend filter none, confirm False
+ Exit             : first close through EMA9, stop 1.5%, TP off
+ Fees / slippage  : 0.1% per side / 0.0% per fill
+ Shorts           : off
+ Period (UTC)     : 2025-11-11 00:00 -> 2026-07-10 23:57  (116160 candles)
+----------------------------------------------------------------
+ Trades           : 1013
+ Win rate         : 12.24%  (124 wins / 889 losses)
+ Avg win / loss   : +0.346% / -0.277%
+ Profit factor    : 0.174
+ Exit reasons     : {'close_through_ema': 1013}
+ Avg trade length : 6.8 candles
+ Total return     : -86.97%  (compounding full balance 1000 -> 130.31 USDT)
+ Fixed 20 USDT/trade: -40.63 USDT total PnL
+ Max drawdown     : -87.02%
+ Buy & hold       : -39.48%
+================================================================
+================================================================
+ BACKTEST OUT-OF-SAMPLE (after split): BTC/USDT 3m  strategy 'video'
+================================================================
+ Data source      : binance (api.binance.com)
+ Rules            : EMA9 x VWAP (anchor UTC 00:00), trend filter none, confirm False
+ Exit             : first close through EMA9, stop 1.5%, TP off
+ Fees / slippage  : 0.1% per side / 0.0% per fill
+ Shorts           : off
+ Period (UTC)     : 2026-07-11 00:00 -> 2026-11-10 23:57  (59040 candles)
+----------------------------------------------------------------
+ Trades           : 499
+ Win rate         : 10.02%  (50 wins / 449 losses)
+ Avg win / loss   : +0.267% / -0.258%
+ Profit factor    : 0.115
+ Exit reasons     : {'close_through_ema': 499}
+ Avg trade length : 7.1 candles
+ Total return     : -64.28%  (compounding full balance 1000 -> 357.19 USDT)
+ Fixed 20 USDT/trade: -20.55 USDT total PnL
+ Max drawdown     : -64.28%
+ Buy & hold       : +15.02%
+================================================================
+ Trade list saved : /workspace/binance-vwap-bot/data/backtest_trades_BTCUSDT_video.csv

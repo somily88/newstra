@@ -1,0 +1,72 @@
+{
+  "phase": "stopped",
+  "heartbeat_utc": "2026-11-11 22:28:57 UTC",
+  "heartbeat_ms": 1794436137518,
+  "started_utc": "2026-11-11 21:23:24 UTC",
+  "pid": 1,
+  "mode": "testnet",
+  "market_type": "spot",
+  "strategy": "trend",
+  "strategy_params": {
+    "timeframe": "1h",
+    "ema_period": 9,
+    "trend_filter": "ema",
+    "trend_ema": 200,
+    "vwap_slope_bars": 5,
+    "confirm": true,
+    "exit_mode": "ema",
+    "stop_loss_pct": 1.5,
+    "take_profit_pct": 0,
+    "atr_period": 14,
+    "atr_stop_mult": 2.5,
+    "atr_tp_r": 3.0,
+    "trail_atr_mult": 3.0,
+    "cooldown_bars": 0
+  },
+  "symbols": [
+    "BTC/USDT"
+  ],
+  "timeframe": "1h",
+  "trade_usdt": 20.0,
+  "allow_short": false,
+  "vwap_anchor": "UTC 00:00",
+  "next_candle_close_utc": null,
+  "paper_balance_usdt": null,
+  "exchange_balance": {
+    "USDT": {
+      "free": 5000.0,
+      "total": 5000.0
+    },
+    "BTC": {
+      "free": 0.0,
+      "total": 0.0
+    }
+  },
+  "positions": {},
+  "latest_candles": {
+    "BTC/USDT": {
+      "candle_open_utc": "2026-11-11 21:00:00 UTC",
+      "ts": 1794430800000,
+      "close": 74390.01,
+      "ema": 74299.60127086463,
+      "vwap": 73976.96276641167,
+      "ema_trend": 75716.41453035337,
+      "atr": 466.7604933273725,
+      "above_trend": false,
+      "cross_up": false,
+      "cross_down": false,
+      "long_signal": false,
+      "short_signal": false
+    }
+  },
+  "last_error": {
+    "time_utc": "2026-11-11 22:00:12 UTC",
+    "level": "WARNING",
+    "message": "Network problem (RequestTimeout: binance GET https://demo-api.binance.com/api/v3/klines?interval=1h&limit=1000&symbol=BTCUSDT). Retry 1/5 in 2s"
+  },
+  "files": {
+    "trades_csv": "/app/data/trades.csv",
+    "log_file": "/app/data/logs/bot.log",
+    "state_file": "/app/data/state_testnet.json"
+  }
+}

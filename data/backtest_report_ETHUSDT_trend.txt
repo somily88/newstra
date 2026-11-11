@@ -1,0 +1,64 @@
+================================================================
+ BACKTEST FULL PERIOD: ETH/USDT 1h  strategy 'trend'
+================================================================
+ Data source      : binance (api.binance.com)
+ Rules            : EMA9 x VWAP (anchor UTC 00:00), trend filter ema EMA200, confirm True
+ Exit             : first close through EMA9, stop 1.5%, TP off
+ Fees / slippage  : 0.1% per side / 0.0% per fill
+ Shorts           : off
+ Period (UTC)     : 2025-11-11 00:00 -> 2026-11-10 23:00  (8760 candles)
+----------------------------------------------------------------
+ Trades           : 144
+ Win rate         : 25.00%  (36 wins / 108 losses)
+ Avg win / loss   : +2.825% / -0.726%
+ Profit factor    : 1.298
+ Exit reasons     : {'close_through_ema': 130, 'stop_loss': 14}
+ Avg trade length : 7.1 candles
+ Total return     : +20.70%  (compounding full balance 1000 -> 1207.04 USDT)
+ Fixed 20 USDT/trade: +4.67 USDT total PnL
+ Max drawdown     : -12.72%
+ Buy & hold       : -42.45%
+================================================================
+================================================================
+ BACKTEST IN-SAMPLE (before split): ETH/USDT 1h  strategy 'trend'
+================================================================
+ Data source      : binance (api.binance.com)
+ Rules            : EMA9 x VWAP (anchor UTC 00:00), trend filter ema EMA200, confirm True
+ Exit             : first close through EMA9, stop 1.5%, TP off
+ Fees / slippage  : 0.1% per side / 0.0% per fill
+ Shorts           : off
+ Period (UTC)     : 2025-11-11 00:00 -> 2026-07-10 23:00  (5808 candles)
+----------------------------------------------------------------
+ Trades           : 86
+ Win rate         : 27.91%  (24 wins / 62 losses)
+ Avg win / loss   : +2.416% / -0.765%
+ Profit factor    : 1.222
+ Exit reasons     : {'close_through_ema': 78, 'stop_loss': 8}
+ Avg trade length : 7.1 candles
+ Total return     : +9.30%  (compounding full balance 1000 -> 1092.96 USDT)
+ Fixed 20 USDT/trade: +2.10 USDT total PnL
+ Max drawdown     : -12.72%
+ Buy & hold       : -49.64%
+================================================================
+================================================================
+ BACKTEST OUT-OF-SAMPLE (after split): ETH/USDT 1h  strategy 'trend'
+================================================================
+ Data source      : binance (api.binance.com)
+ Rules            : EMA9 x VWAP (anchor UTC 00:00), trend filter ema EMA200, confirm True
+ Exit             : first close through EMA9, stop 1.5%, TP off
+ Fees / slippage  : 0.1% per side / 0.0% per fill
+ Shorts           : off
+ Period (UTC)     : 2026-07-11 00:00 -> 2026-11-10 23:00  (2952 candles)
+----------------------------------------------------------------
+ Trades           : 58
+ Win rate         : 20.69%  (12 wins / 46 losses)
+ Avg win / loss   : +3.643% / -0.672%
+ Profit factor    : 1.415
+ Exit reasons     : {'close_through_ema': 52, 'stop_loss': 6}
+ Avg trade length : 7.2 candles
+ Total return     : +10.44%  (compounding full balance 1000 -> 1104.38 USDT)
+ Fixed 20 USDT/trade: +2.56 USDT total PnL
+ Max drawdown     : -10.99%
+ Buy & hold       : +14.27%
+================================================================
+ Trade list saved : /workspace/binance-vwap-bot/data/backtest_trades_ETHUSDT_trend.csv
