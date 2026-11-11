@@ -34,6 +34,7 @@ services:
     environment:
       DASHBOARD_HOST: 0.0.0.0
       DASHBOARD_PORT: "8080"
+      DASHBOARD_PASSWORD: ${DASHBOARD_PASSWORD:?Set DASHBOARD_PASSWORD in Hostinger environment variables}
     volumes:
       - botdata:/app/data:ro
     ports:
