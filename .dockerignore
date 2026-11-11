@@ -1,0 +1,25 @@
+# Secrets - never put these into the image
+.env
+.env.*
+!.env.example
+
+# Runtime files (mounted as a volume instead)
+data/
+logs/
+state*.json
+status*.json
+*.tmp
+
+# Research raw candle downloads (big)
+research/*_3m.csv
+research/*_5m.csv
+research/*_15m.csv
+research/*_1h.csv
+
+# Junk
+__pycache__/
+*.pyc
+.git/
+.gitignore
+*.zip
+docker-compose*.yml
